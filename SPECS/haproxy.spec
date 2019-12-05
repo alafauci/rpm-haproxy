@@ -4,17 +4,13 @@
 
 # define dist %{expand:%%(/usr/lib/rpm/redhat/dist.sh --dist)}
 %define dist amzn2
-%define 0%{?amzn2}
-%if 0%{?rhel} < 7
-    %{!?__global_ldflags: %global __global_ldflags -Wl,-z,relro}
-%endif
 
 %global _hardened_build 1
 
 Summary: HA-Proxy reverse proxy for high availability environments
 Name: haproxy
 Version: %{version}
-Release: %{release}%{?dist}
+Release: %{release}%{dist}
 License: GPLv2+
 Group: System Environment/Daemons
 URL: http://www.haproxy.org/
@@ -22,7 +18,7 @@ Source0: http://www.haproxy.org/download/1.8/src/%{name}-%{version}.tar.gz
 Source1: %{name}.cfg
 Source2: %{name}.service
 Source3: %{name}.logrotate
-Source4: %{name}.syslog%{dist}
+Source4: %{name}.syslog.%{dist}
 Source5: halog.1
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 
@@ -170,50 +166,3 @@ systemctl restart rsyslog.service
 
 %attr(-,root,root) %{_unitdir}/%{name}.service
 
-%changelog
-* Sun Oct 20 2019 David Bezemer <info@davidbezemer.nl>
-- Add compatiblity with CentOS/RHEL 8
-
-* Tue Jun 18 2019 David Bezemer <info@davidbezemer.nl>
-- First build of HAproxy 2.0.0
-
-* Tue Jun 18 2019 David Bezemer <info@davidbezemer.nl>
-- Update to HAproxy 1.9.8
-
-* Wed Sep 26 2018 J. Casalino <casalino@adobe.com>
-- Update to HAproxy 1.8.14
-
-* Fri Jun 29 2018 Topher Cullen <topher@shawlite.com>
-- Update to HAproxy 1.8.12
-- Add support for Amazon Linux 2
-
-* Fri May 18 2018 David Bezemer <info@davidbezemer.nl>
-- Update to HAproxy 1.8.8
-
-* Fri Feb 23 2018 J. Casalino <casalino@adobe.com>
-- Add support for Amazon Linux (Fedora-based)
-
-* Mon Feb 12 2018 David Bezemer <info@davidbezemer.nl>
-- Update to HAproxy 1.8.4
-
-* Fri Jan 26 2018 Kamil Herbik <kamil.herbik@rst.com.pl>
-- Update for HAproxy 1.8
-
-* Mon Jul 31 2017 David Bezemer <info@davidbezemer.nl>
-- Update for HAproxy 1.7.8
-
-* Thu Jun 08 2017 David Bezemer <info@davidbezemer.nl>
-- Update for HAproxy 1.7.5
-- Remove duplicate pcre-devel requirement
-
-* Sun Jan 15 2017 David Bezemer <info@davidbezemer.nl>
-- Update for HAproxy 1.7.2
-
-* Sun Oct 23 2016 David Bezemer <info@davidbezemer.nl>
-- Add systemd compatibility
-
-* Sat Oct 22 2016 David Bezemer <info@davidbezemer.nl>
-- reworked installation structure
-- included rsylog config for logging
-- copy default error files
-- updated to 1.6.9
