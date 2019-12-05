@@ -2,7 +2,6 @@
 %define haproxy_group   %{haproxy_user}
 %define haproxy_home    %{_localstatedir}/lib/haproxy
 
-# define dist %{expand:%%(/usr/lib/rpm/redhat/dist.sh --dist)}
 %define dist amzn2
 
 %global _hardened_build 1
