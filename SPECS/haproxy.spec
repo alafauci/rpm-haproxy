@@ -2,7 +2,8 @@
 %define haproxy_group   %{haproxy_user}
 %define haproxy_home    %{_localstatedir}/lib/haproxy
 
-%define dist %{expand:%%(/usr/lib/rpm/redhat/dist.sh --dist)}
+# define dist %{expand:%%(/usr/lib/rpm/redhat/dist.sh --dist)}
+define dist amzn2
 
 %if 0%{?rhel} < 7
     %{!?__global_ldflags: %global __global_ldflags -Wl,-z,relro}
@@ -19,6 +20,10 @@ Group: System Environment/Daemons
 URL: http://www.haproxy.org/
 Source0: http://www.haproxy.org/download/1.8/src/%{name}-%{version}.tar.gz
 Source1: %{name}.cfg
+%{?el6:Source2: %{name}.init}
+%{?amzn1:Source2: %{name}.init}
+%{?el7:Source2: %{name}.service}
+%{?el8:Source2: %{name}.service}
 %{?amzn2:Source2: %{name}.service}
 Source3: %{name}.logrotate
 Source4: %{name}.syslog%{?dist}
