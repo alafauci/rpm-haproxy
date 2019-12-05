@@ -9,7 +9,7 @@
 Summary: HA-Proxy reverse proxy for high availability environments
 Name: haproxy
 Version: %{version}
-Release: %{release}-%{dist}
+Release: %{release}%{dist}
 License: GPLv2+
 Group: System Environment/Daemons
 URL: http://www.haproxy.org/
