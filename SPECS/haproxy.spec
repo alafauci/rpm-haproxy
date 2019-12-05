@@ -4,7 +4,7 @@
 
 # define dist %{expand:%%(/usr/lib/rpm/redhat/dist.sh --dist)}
 %define dist amzn2
-
+%define 0%{?amzn2}
 %if 0%{?rhel} < 7
     %{!?__global_ldflags: %global __global_ldflags -Wl,-z,relro}
 %endif
@@ -20,13 +20,9 @@ Group: System Environment/Daemons
 URL: http://www.haproxy.org/
 Source0: http://www.haproxy.org/download/1.8/src/%{name}-%{version}.tar.gz
 Source1: %{name}.cfg
-%{?el6:Source2: %{name}.init}
-%{?amzn1:Source2: %{name}.init}
-%{?el7:Source2: %{name}.service}
-%{?el8:Source2: %{name}.service}
-%{?amzn2:Source2: %{name}.service}
+Source2: %{name}.service
 Source3: %{name}.logrotate
-Source4: %{name}.syslog%{?dist}
+Source4: %{name}.syslog%{dist}
 Source5: halog.1
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 
@@ -39,19 +35,11 @@ BuildRequires: openssl-devel
 Requires(pre):      shadow-utils
 Requires:           rsyslog
 
-%if 0%{?el6} || 0%{?amzn1}
-Requires(post):     chkconfig, initscripts
-Requires(preun):    chkconfig, initscripts
-Requires(postun):   initscripts
-%endif
-
-%if 0%{?el7} || 0%{?amzn2} || 0%{?el8}
 BuildRequires:      systemd-units
 BuildRequires:      systemd-devel
 Requires(post):     systemd
 Requires(preun):    systemd
 Requires(postun):   systemd
-%endif
 
 %description
 HA-Proxy is a TCP/HTTP reverse proxy which is particularly suited for high
@@ -77,9 +65,7 @@ risking the system's stability.
 
 %build
 regparm_opts=
-%ifarch %ix86 x86_64
 regparm_opts="USE_REGPARM=1"
-%endif
 
 RPM_BUILD_NCPUS="`/usr/bin/nproc 2>/dev/null || /usr/bin/getconf _NPROCESSORS_ONLN`";
 
@@ -89,15 +75,11 @@ pcre_opts="USE_PCRE=1"
 USE_TFO=
 USE_NS=
 
-%if 0%{?el7} || 0%{?amzn2} || 0%{?el8}
 systemd_opts="USE_SYSTEMD=1"
 pcre_opts="USE_PCRE=1 USE_PCRE_JIT=1"
-%endif
 
-%if 0%{?el7} || 0%{?amzn2} || 0%{?amzn1} || 0%{?el8}
 USE_TFO=1
 USE_NS=1
-%endif
 
 %{__make} -j$RPM_BUILD_NCPUS %{?_smp_mflags} CPU="generic" TARGET="linux-glibc" ${systemd_opts} ${pcre_opts} USE_OPENSSL=1 USE_ZLIB=1 ${regparm_opts} ADDINC="%{optflags}" USE_LINUX_TPROXY=1 USE_THREAD=1 USE_TFO=${USE_TFO} USE_NS=${USE_NS} ADDLIB="%{__global_ldflags}"
 
@@ -156,40 +138,18 @@ getent passwd %{haproxy_user} >/dev/null || \
 exit 0
 
 %post
-%if 0%{?el7} || 0%{?amzn2} || 0%{?el8}
 %systemd_post %{name}.service
 systemctl restart rsyslog.service
-%endif
 
-%if 0%{?el6} || 0%{?amzn1}
-/sbin/chkconfig --add %{name}
-/sbin/service rsyslog restart >/dev/null 2>&1 || :
-%endif
 
 %preun
-%if 0%{?el7} || 0%{?amzn2} || 0%{?el8}
 %systemd_preun %{name}.service
-%endif
 
-%if 0%{?el6} || 0%{?amzn1}
-if [ $1 = 0 ]; then
-  /sbin/service %{name} stop >/dev/null 2>&1 || :
-  /sbin/chkconfig --del %{name}
-fi
-%endif
 
 %postun
-%if 0%{?el7} || 0%{?amzn2} || 0%{?el8}
 %systemd_postun_with_restart %{name}.service
 systemctl restart rsyslog.service
-%endif
 
-%if 0%{?el6} || 0%{?amzn1}
-if [ "$1" -ge "1" ]; then
-  /sbin/service %{name} condrestart >/dev/null 2>&1 || :
-  /sbin/service rsyslog restart >/dev/null 2>&1 || :
-fi
-%endif
 
 %files
 %defattr(-,root,root)
@@ -208,13 +168,7 @@ fi
 %{_bindir}/halog
 %{_bindir}/iprange
 
-%if 0%{?el6} || 0%{?amzn1}
-%attr(0755,root,root) %config %_sysconfdir/rc.d/init.d/%{name}
-%endif
-
-%if 0%{?el7} || 0%{?amzn2} || 0%{?el8}
 %attr(-,root,root) %{_unitdir}/%{name}.service
-%endif
 
 %changelog
 * Sun Oct 20 2019 David Bezemer <info@davidbezemer.nl>
