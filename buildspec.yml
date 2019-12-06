@@ -1,0 +1,20 @@
+version: 0.2
+
+env:
+  variables:
+    build_version: "0.1"
+    
+phases:
+  install:
+    runtime-versions:
+      php: 7.3
+    commands:
+      - yum install rpm-build make gcc glibc sudo system-rpm-config.noarch -y 
+  build:
+    commands:
+      - make
+      
+artifacts:
+  files:
+    - rpmbuild/RPMS/x86_64/haproxy-*.rpm
+  discard-paths: yes
